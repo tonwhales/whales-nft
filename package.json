@@ -2,5 +2,19 @@
   "name": "whales-nft",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^17.0.27",
+    "canvas": "^2.9.1",
+    "image-data-uri": "^2.0.1",
+    "merge-images": "^2.0.0",
+    "prando": "^6.0.1",
+    "ts-node": "^10.7.0",
+    "tsc": "^2.0.4",
+    "typescript": "^4.6.3",
+    "yaml": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/merge-images": "^1.2.1"
+  }
 }

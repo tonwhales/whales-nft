@@ -1,0 +1,42 @@
+root: traits/
+output: output/
+seed: whales gonna whale
+count: 9000
+layers:
+  - path: 1-background
+    rarity: 1
+    overrides:
+      bg_15: 0.5
+      bg_18: 0.5
+  - path: 2-body_belly
+    rarity: 1
+  - path: 3-body_back
+    rarity: 1
+  - path: 4-eye
+    rarity: 1
+  - path: 5-neck
+    rarity: 0.5
+  - path: 6-tooth
+    rarity: 0.6
+    cannot_be_with:
+      - 11-habits
+  - path: 7-glasses
+    rarity: 0.4
+    overrides:
+      black:
+        cannot_be_with:
+          - 4-eye
+      rainbow:
+        cannot_be_with:
+          - 4-eye
+
+  - path: 8-tale
+    rarity: 0.3
+  - path: 9-hand
+    rarity: 0.1
+  - path: 10-hats
+    rarity: 0.7
+  - path: 11-habits
+    rarity: 0.1
+    cannot_be_with:
+      - 6-tooth
