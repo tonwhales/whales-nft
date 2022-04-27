@@ -4,7 +4,10 @@ import { parse } from 'yaml'
 import Prando from 'prando'
 import mergeImages from 'merge-images'
 import { appendFile, writeFile } from 'fs/promises'
-import { Image, Canvas } from 'canvas'
+import canvas from 'canvas'
+import ora from 'ora'
+
+const { Image, Canvas } = canvas;
 
 // @ts-ignore
 import ImageDataURI from 'image-data-uri'
@@ -47,6 +50,16 @@ function loadConstraints(layers: Layer[]) {
             for (let unsuitable of layer.cannot_be_with) {
                 addConstraint(layer.path, unsuitable);
                 addConstraint(unsuitable, layer.path);
+            }
+        }
+        if (layer.overrides) {
+            for (let [traitName, override] of Object.entries(layer.overrides)) {
+                if (typeof override !== 'number' && override.cannot_be_with) {
+                    for (let unsuitable of override.cannot_be_with) {
+                        addConstraint(`${layer.path}/${traitName}`, unsuitable);
+                        addConstraint(unsuitable, `${layer.path}/${traitName}`);
+                    }
+                }
             }
         }
     }
@@ -106,10 +119,12 @@ function loadTraits(layer: Layer) {
 }
 
 async function main() {
+    let spinner = ora();
+    spinner.start('Building nfts');
+
     const constraintsMap = loadConstraints(config.layers);
-    console.log(constraintsMap);
     const layers = config.layers.map(layer => ({ traits: loadTraits(layer), layer }));
-    let used = new Set<string[]>();
+    let used = new Set<string>();
     let nfts: string[][] = [];
     for (let i = 0; i < config.count; i++) {
         let combination: string[] = [];
@@ -121,21 +136,32 @@ async function main() {
                     combination.push('empty');
                     continue;
                 }
-                let selected = random.nextArrayItem(layer.traits);
+                let selected: Trait;
+                while (true) {
+                    selected = random.nextArrayItem(layer.traits);
+                    if (selected.type === 'image' && constraints.includes(layer.layer.path + '/' + selected.name)) {
+                        continue;
+                    } 
+                    break;
+                }
                 combination.push(selected.type === 'image' ? selected.name : 'empty');
                 if (selected.type == 'image') {
                     constraints.push(...(constraintsMap.get(layer.layer.path) || []))
                 }
             }
-        } while (used.has(combination));
-        used.add(combination);
+        } while (used.has(combination.join('/')));
+        used.add(combination.join('/'));
         nfts.push(combination);
     }
+    spinner.succeed(`Built ${nfts.length} nfts`);
 
+
+    spinner.start('Doing some magic');
     let i = 0;
+    let total = 1000;
     const previewPath = pathUtils.resolve(config.output, 'preview.html');
     await writeFile(previewPath, '<head><style>img { width: 80px; height: 80px; margin: 8px }</style></head>');
-    for (let nft of nfts.slice(0, 1000)) {
+    for (let nft of nfts.slice(0, total)) {
         let images: string[] = [];
         for (let i = 0; i < nft.length; i++) {
             if (nft[i] === 'empty') {
@@ -148,6 +174,8 @@ async function main() {
         
         await appendFile(previewPath, `<img alt="${nft.join(' ')}" src="${i + '.png'}"></img>`)
         i++;
+        spinner.prefixText = `${i.toString()}/${total}`;
     }
+    spinner.succeed();
 }
 main();

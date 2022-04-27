@@ -8,14 +8,42 @@ layers:
     overrides:
       bg_15: 0.5
       bg_18: 0.5
+      bg_6: 0.7
+      bg_7: 0.7
+      bg_8: 0.7
+      bg_9: 0.7
+      bg_10: 0.7
+      bg_11: 0.7
+      bg_12: 0.7
+      bg_13: 0.7
+      bg_14: 0.7
   - path: 2-body_belly
     rarity: 1
   - path: 3-body_back
     rarity: 1
+    overrides:
+      body_back_2: 0.7
+      body_back_5: 0.7
   - path: 4-eye
     rarity: 1
+    overrides:
+      eye_5: 0.5
+      eye_7: 0.5
   - path: 5-neck
     rarity: 0.5
+    overrides:
+      '1':
+        cannot_be_with:
+          - 11-habits/tobacco_pipe
+      '2':
+        cannot_be_with:
+          - 11-habits/tobacco_pipe
+      '3':
+        cannot_be_with:
+          - 11-habits/tobacco_pipe
+      '4':
+        cannot_be_with:
+          - 11-habits/tobacco_pipe
   - path: 6-tooth
     rarity: 0.6
     cannot_be_with:
@@ -31,12 +59,46 @@ layers:
           - 4-eye
 
   - path: 8-tale
-    rarity: 0.3
+    rarity: 0.35
+    overrides:
+      '14': 0.7
   - path: 9-hand
     rarity: 0.1
   - path: 10-hats
     rarity: 0.7
+    overrides:
+      '4':
+        cannot_be_with:
+          - 7-glasses
+          - 3-body_back/body_back_3
+          - 3-body_back/body_back_5
+          - 3-body_back/body_back_6
+      '6':
+        cannot_be_with:
+          - 7-glasses
+      '12':
+        cannot_be_with:
+          - 7-glasses
+      '13':
+        cannot_be_with:
+          - 7-glasses
+      '14':
+        cannot_be_with:
+          - 7-glasses
+      '15':
+        cannot_be_with:
+          - 7-glasses
+      '18':
+        cannot_be_with:
+          - 7-glasses
+      '20':
+        cannot_be_with:
+          - 7-glasses
+      '21':
+        cannot_be_with:
+          - 7-glasses
+
   - path: 11-habits
-    rarity: 0.1
+    rarity: 0.2
     cannot_be_with:
       - 6-tooth
