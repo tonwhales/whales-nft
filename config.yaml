@@ -47,6 +47,7 @@ custom:
 
 layers:
   - path: 1-background
+    name: Background
     rarity: 1
     overrides:
       bg_15: 0.5
@@ -61,21 +62,26 @@ layers:
       bg_13: 0.7
       bg_14: 0.7
   - path: 2-body_belly
+    name: Belly
     rarity: 1
   - path: 3-body_back
+    name: Back
     rarity: 1
     overrides:
       body_back_2: 0.7
       body_back_5: 0.7
   - path: 3.5-clothes
+    name: Clothes
     rarity: 1
   - path: 4-eye
     rarity: 1
+    name: Eye
     overrides:
       eye_5: 0.5
       eye_7: 0.5
   - path: 5-neck
     rarity: 0.5
+    name: Neck
     overrides:
       '1':
         cannot_be_with:
@@ -91,10 +97,12 @@ layers:
           - 11-habits/tobacco_pipe
   - path: 6-tooth
     rarity: 0.6
+    name: Tooth
     cannot_be_with:
       - 11-habits
   - path: 7-glasses
     rarity: 0.4
+    name: Glasses
     overrides:
       black:
         cannot_be_with:
@@ -105,11 +113,14 @@ layers:
 
   - path: 8-tale
     rarity: 0.35
+    name: Tale
     overrides:
       '14': 0.7
   - path: 9-hand
+    name: Hand
     rarity: 0.1
   - path: 10-hats
+    name: Hat
     rarity: 0.7
     overrides:
       '4':
@@ -145,10 +156,12 @@ layers:
 
   - path: 11-habits
     rarity: 0.2
+    name: Habit
     cannot_be_with:
       - 6-tooth
 
   - path: 12-flags
     rarity: 0.05
+    name: Flag
     cannot_be_with:
       - 9-hand

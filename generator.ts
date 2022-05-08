@@ -21,6 +21,7 @@ type LayerConfig = {
 
 type Layer = {
     path: string,
+    name: string,
     overrides?: { [key: string]: number | Optional<LayerConfig> },
 } & LayerConfig
 
@@ -161,7 +162,8 @@ async function loadTiers() {
                 for (let layer of config.layers) {
                     let newLayer = {
                         path: pathUtils.join(custom.path, name, layer.path),
-                        rarity: layer.rarity
+                        rarity: layer.rarity,
+                        name: layer.name,
                     };
                     let traits = await loadTraits(newLayer);
                     layers.push({
@@ -200,7 +202,8 @@ async function loadTiers() {
             } else {
                 let newLayer = {
                     path: pathUtils.join(custom.path, layer.path),
-                    rarity: layer.rarity
+                    rarity: layer.rarity,
+                    name: layer.name
                 };
                 layers.push({
                     layer: newLayer,
@@ -212,7 +215,8 @@ async function loadTiers() {
             for (let layer of custom.layers) {
                 let newLayer = {
                     path: pathUtils.join(custom.path, layer.path),
-                    rarity: layer.rarity
+                    rarity: layer.rarity,
+                    name: layer.name
                 };
                 layers.push({
                     layer: newLayer,
@@ -253,6 +257,7 @@ async function main() {
 
     let used = new Set<string>();
     let nfts: string[][] = [];
+    let nftAttributes: { [key: string]: string }[] = [];
     for (let tier of await randomizeTiers(tiers)) {
         let layers = commonLayers;
         if (tier !== 'common') {
@@ -260,13 +265,17 @@ async function main() {
         }
 
         let combination: string[] = [];
+        let attributes: { [key: string]: string };
         let attempts = 0;
         do {
             combination = [];
+            attributes = {};
+            attributes['Tier'] = tier;
             let constraints: string[] = [];
             for (let layer of layers) {
                 if (constraints.includes(layer.layer.path)) {
                     combination.push('empty');
+                    attributes[layer.layer.name] = 'none';
                     continue;
                 }
                 let selected: Trait;
@@ -278,6 +287,7 @@ async function main() {
                     break;
                 }
                 combination.push(selected.type === 'image' ? (layer.layer.path + '/' + selected.name) : 'empty');
+                attributes[layer.layer.name] = selected.type === 'image' ? selected.name : 'none';
                 if (selected.type == 'image') {
                     constraints.push(...(constraintsMap.get(layer.layer.path) || []))
                 }
@@ -290,16 +300,18 @@ async function main() {
         } while (used.has(combination.join('/')));
         used.add(combination.join('/'));
         nfts.push(combination);
+        nftAttributes.push(attributes);
     }
     spinner.succeed(`Built ${nfts.length} nfts`);
 
 
     spinner.start('Doing some magic');
-    let i = 0;
     let total = 1000;
     const previewPath = pathUtils.resolve(config.output, 'preview.html');
     await writeFile(previewPath, '<head><style>img { width: 80px; height: 80px; margin: 8px }</style></head>');
-    for (let nft of nfts.slice(0, total)) {
+    for (let idx = 0; idx < total; idx++) {
+        let nft = nfts[idx];
+        let attributes = nftAttributes[idx];
         let images: string[] = [];
         for (let i = 0; i < nft.length; i++) {
             if (nft[i] === 'empty') {
@@ -309,11 +321,13 @@ async function main() {
         }
         try {
             let image = await mergeImages(images, { Canvas, Image });
-            await ImageDataURI.outputFile(image, pathUtils.resolve(config.output, i + '.png'));
+            await ImageDataURI.outputFile(image, pathUtils.resolve(config.output, idx + '.png'));
+
+            await writeFile(pathUtils.resolve(config.output, idx + '.json'), JSON.stringify(attributes));
+            await appendFile(pathUtils.resolve(config.output,  'attributes.json'), JSON.stringify(attributes));
         
-            await appendFile(previewPath, `<img alt="${nft.join(' ')}" src="${i + '.png'}"></img>`)
-            i++;
-            spinner.prefixText = `${i.toString()}/${total}`;
+            await appendFile(previewPath, `<img alt="${nft.join(' ')}" src="${idx + '.png'}"></img>`)
+            spinner.prefixText = `${idx.toString()}/${total}`;
         } catch {
             console.log(images);
         }
