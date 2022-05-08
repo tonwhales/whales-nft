@@ -21,8 +21,10 @@ custom:
       - 1-background
     layers:
       - path: 13-lips
+        name: Lips
         rarity: 1
       - path: 14-hair
+        name: Hair
         rarity: 1
   - name: Legendary
     count: 777

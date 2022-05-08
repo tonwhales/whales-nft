@@ -239,7 +239,7 @@ async function randomizeTiers(tiers: Map<string, Tier>) {
             result.push(name);
         }
     }
-    for (; remaining > 0; remaining--) result.push('common');
+    for (; remaining > 0; remaining--) result.push('Common');
 
     shuffle(result);
     return result;
@@ -260,8 +260,11 @@ async function main() {
     let nftAttributes: { [key: string]: string }[] = [];
     for (let tier of await randomizeTiers(tiers)) {
         let layers = commonLayers;
-        if (tier !== 'common') {
+        if (tier !== 'Common') {
             layers = tiers.get(tier)!.layers;
+        }
+        if (!config.custom.find(a => a.name === tier) && tier !== 'Common') {
+            tier = 'Legendary';
         }
 
         let combination: string[] = [];
@@ -309,6 +312,7 @@ async function main() {
     let total = 1000;
     const previewPath = pathUtils.resolve(config.output, 'preview.html');
     await writeFile(previewPath, '<head><style>img { width: 80px; height: 80px; margin: 8px }</style></head>');
+    await writeFile(pathUtils.resolve(config.output,  'attributes.json'), '');
     for (let idx = 0; idx < total; idx++) {
         let nft = nfts[idx];
         let attributes = nftAttributes[idx];
@@ -324,7 +328,7 @@ async function main() {
             await ImageDataURI.outputFile(image, pathUtils.resolve(config.output, idx + '.png'));
 
             await writeFile(pathUtils.resolve(config.output, idx + '.json'), JSON.stringify(attributes));
-            await appendFile(pathUtils.resolve(config.output,  'attributes.json'), JSON.stringify(attributes));
+            await appendFile(pathUtils.resolve(config.output, 'attributes.json'), JSON.stringify(attributes) + '\n');
         
             await appendFile(previewPath, `<img alt="${nft.join(' ')}" src="${idx + '.png'}"></img>`)
             spinner.prefixText = `${idx.toString()}/${total}`;
