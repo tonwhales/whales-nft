@@ -1,7 +1,50 @@
 root: traits/
 output: output/
 seed: whales gonna whale
-count: 9000
+count: 10000
+
+custom:
+  - name: Black People
+    count: 500
+    path: tiers/Usual/Black People
+    uses:
+      - 1-background
+  - name: Miner
+    count: 200
+    path: tiers/Usual/Miner
+    uses:
+      - 1-background
+  - name: Women
+    count: 900
+    path: tiers/Usual/Women
+    uses:
+      - 1-background
+    layers:
+      - path: 13-lips
+        rarity: 1
+      - path: 14-hair
+        rarity: 1
+  - name: Legendary
+    count: 777
+    path: tiers/Legendary
+    special: true
+    counts:
+      90s: 54
+      China Town: 384
+      Egypt Mummy: 48
+      Hell: 2
+      Hood: 12096
+      Matrix: 48
+      Ninja School: 270
+      Paradise: 18
+      Santa Village: 240
+      Space: 576
+      UAE Desert: 1344
+      Wall Street: 15552
+      Wild West: 240
+      Wizard: 240
+    
+
 layers:
   - path: 1-background
     rarity: 1
@@ -24,6 +67,8 @@ layers:
     overrides:
       body_back_2: 0.7
       body_back_5: 0.7
+  - path: 3.5-clothes
+    rarity: 1
   - path: 4-eye
     rarity: 1
     overrides:
@@ -102,3 +147,8 @@ layers:
     rarity: 0.2
     cannot_be_with:
       - 6-tooth
+
+  - path: 12-flags
+    rarity: 0.05
+    cannot_be_with:
+      - 9-hand
