@@ -1,8 +1,8 @@
 root: traits/
-output: output/
+output: output/images/
 seed: whales gonna whale
 count: 10000
-
+logo: logo.png
 custom:
   - name: Black People
     count: 500

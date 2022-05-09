@@ -3,7 +3,7 @@ import * as pathUtils from 'path'
 import { parse } from 'yaml'
 import Prando from 'prando'
 import mergeImages from 'merge-images'
-import { appendFile, writeFile, readdir } from 'fs/promises'
+import { appendFile, writeFile, readdir, mkdir, copyFile } from 'fs/promises'
 import canvas from 'canvas'
 import ora from 'ora'
 
@@ -41,6 +41,7 @@ type Config = {
     seed: string,
     count: number,
     layers: Layer[]
+    logo?: string
     custom: CustomConfig[]
 }
 
@@ -310,9 +311,13 @@ async function main() {
 
     spinner.start('Doing some magic');
     let total = 1000;
+    await mkdir(config.output, { recursive: true });
     const previewPath = pathUtils.resolve(config.output, 'preview.html');
     await writeFile(previewPath, '<head><style>img { width: 80px; height: 80px; margin: 8px }</style></head>');
-    await writeFile(pathUtils.resolve(config.output,  'attributes.json'), '');
+    await writeFile(pathUtils.resolve(config.output,  'attributes.jsonl'), '');
+    if (config.logo) {
+        await copyFile(pathUtils.resolve(config.root, config.logo), pathUtils.resolve(config.output, 'logo.png'));
+    }
     for (let idx = 0; idx < total; idx++) {
         let nft = nfts[idx];
         let attributes = nftAttributes[idx];
