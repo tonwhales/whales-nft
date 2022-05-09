@@ -30,21 +30,21 @@ custom:
     count: 777
     path: tiers/Legendary
     special: true
-    counts:
-      90s: 54
-      China Town: 384
-      Egypt Mummy: 48
-      Hell: 2
-      Hood: 12096
-      Matrix: 48
-      Ninja School: 270
-      Paradise: 18
-      Santa Village: 240
-      Space: 576
-      UAE Desert: 1344
-      Wall Street: 15552
-      Wild West: 240
-      Wizard: 240
+    # counts:
+    #   90s: 54
+    #   China Town: 384
+    #   Egypt Mummy: 48
+    #   Hell: 2
+    #   Hood: 12096
+    #   Matrix: 48
+    #   Ninja School: 270
+    #   Paradise: 18
+    #   Santa Village: 240
+    #   Space: 576
+    #   UAE Desert: 1344
+    #   Wall Street: 15552
+    #   Wild West: 240
+    #   Wizard: 240
     
 
 layers:
@@ -105,13 +105,13 @@ layers:
   - path: 7-glasses
     rarity: 0.4
     name: Glasses
-    overrides:
-      black:
-        cannot_be_with:
-          - 4-eye
-      rainbow:
-        cannot_be_with:
-          - 4-eye
+    # overrides:
+    #   black:
+    #     cannot_be_with:
+    #       - 4-eye
+    #   rainbow:
+    #     cannot_be_with:
+    #       - 4-eye
 
   - path: 8-tale
     rarity: 0.35
