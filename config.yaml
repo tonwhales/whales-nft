@@ -30,6 +30,25 @@ custom:
     count: 777
     path: tiers/Legendary
     special: true
+    overrides:
+      Wild West:
+        5-neck: 1
+        10-hats: 1
+      UAE Desert:
+        10-hats: 1
+        7-glasses: 1
+      Santa Village:
+        10-hats: 1
+      Matrix:
+        10-hats: 1
+        7-glasses: 1
+      China Town:
+        10-hats: 1
+      Hood:
+        10-hats: 1
+      Paradise:
+        10-hats: 1
+      
     # counts:
     #   90s: 54
     #   China Town: 384

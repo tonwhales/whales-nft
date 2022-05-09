@@ -33,7 +33,7 @@ type CustomConfig = {
     uses?: string[]
     layers?: Layer[]
     special: boolean
-}
+} & { special: true, overrides?: { [skin: string]: { [key: string]: number } } }
 
 type Config = {
     root: string,
@@ -162,7 +162,7 @@ async function loadTiers() {
                 for (let layer of config.layers) {
                     let newLayer = {
                         path: pathUtils.join(custom.path, name, layer.path),
-                        rarity: layer.rarity,
+                        rarity: custom.overrides?.[name]?.[layer.path] || layer.rarity,
                         name: layer.name,
                     };
                     let traits = await loadTraits(newLayer);
