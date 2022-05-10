@@ -263,7 +263,7 @@ function randomizeTiersAndPerks(tiers: Map<string, Tier>) {
             }
         }
     }
-    for (; remaining > 0; remaining--) result.push({ tier: 'Common', perks: [] });
+    for (; remaining > 0; remaining--) result.push({ tier: 'common', perks: [] });
 
     shuffle(result);
     shuffle(specials);
@@ -315,7 +315,7 @@ async function main() {
     let nftAttributes: { [key: string]: string }[] = [];
     for (let { tier, perks } of randomizeTiersAndPerks(tiers)) {
         let layers = commonLayers;
-        if (tier !== 'Common') {
+        if (tier !== 'common') {
             layers = tiers.get(tier)!.layers;
         }
 
@@ -326,7 +326,7 @@ async function main() {
         do {
             combination = [];
             attributes = {};
-            attributes['Tier'] = tier;
+            attributes['Tier'] = tier.toLowerCase();
             let constraints: string[] = [];
             for (let layer of layers) {
                 let isPerk = false;
@@ -387,6 +387,22 @@ async function main() {
     }
     spinner.succeed(`Built ${nfts.length} nfts`);
 
+    let rarityScores: number[] = [];
+    spinner.start('Assuming rarity scores');
+    let traitCounts = new Map<string, number>();
+    for (let item of nftAttributes) {
+        for (let [name, trait] of Object.entries(item)) {
+            traitCounts.set(`${name}/${trait}`, (traitCounts.get(`${name}/${trait}`) || 0) + 1);
+        }
+    }
+    for (let item of nftAttributes) {
+        let score = 0;
+        for (let [name, trait] of Object.entries(item)) {
+            score += Math.round(1 / (traitCounts.get(`${name}/${trait}`)! / nftAttributes.length));
+        }
+        rarityScores.push(score);
+    }
+    spinner.succeed('Calculated rarity scores');
 
     spinner.start('Doing some magic');
     let total = 1000;
@@ -412,7 +428,7 @@ async function main() {
             await ImageDataURI.outputFile(image, pathUtils.resolve(config.output, idx + '.png'));
 
             await writeFile(pathUtils.resolve(config.output, idx + '.json'), JSON.stringify(attributes));
-            await appendFile(pathUtils.resolve(config.output, 'attributes.jsonl'), JSON.stringify(attributes) + '\n');
+            await appendFile(pathUtils.resolve(config.output, 'attributes.jsonl'), JSON.stringify({ ...attributes, score: rarityScores[idx], idx }) + '\n');
         
             await appendFile(previewPath, `<img alt="${nft.join(' ')}" src="${idx + '.png'}"></img>`)
             spinner.prefixText = `${idx.toString()}/${total}`;
