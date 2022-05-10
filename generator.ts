@@ -45,7 +45,8 @@ type Config = {
     layers: Layer[]
     logo?: string
     name_aliases?: string
-    custom: CustomConfig[]
+    perks?: { [key: string]: { path: string, layer: string, levels: { name: string, count: number }[], distribution: { special: number, others: number } } }
+    custom?: CustomConfig[]
 }
 
 const config: Config = parse(fs.readFileSync('./config.yaml', { encoding: 'utf-8' }))
@@ -74,7 +75,7 @@ function addConstraint(name: string, cannotBeWith: string) {
     Constraints.set(name, prevConstraints);
 }
 
-async function loadConstraints(layers: Layer[]) {
+function loadConstraints(layers: Layer[]) {
     for (let layer of layers) {
         if (layer.cannot_be_with) {
             for (let unsuitable of layer.cannot_be_with) {
@@ -110,7 +111,7 @@ async function loadTraits(layer: Layer) {
     try {
         traitsFiles = await readdir(traitsDir);
     } catch {
-        console.warn('[warn] cannot find traits for ' + traitsDir);
+        // console.warn('[warn] cannot find traits for ' + traitsDir);
     }
     
 
@@ -156,9 +157,12 @@ async function loadTraits(layer: Layer) {
 }
 
 
-type Tier = { layers: { traits: Trait[], layer: Layer }[], count: number };
+type Tier = { layers: { traits: Trait[], layer: Layer }[], count: number, special: boolean };
 async function loadTiers() {
     let result = new Map<string, Tier>(); 
+    if (!config.custom) {
+        return result;
+    }
     for (let custom of config.custom) {
         if (custom.special) {
             let specialPaths = await readdir(pathUtils.resolve(config.root, custom.path));
@@ -184,6 +188,7 @@ async function loadTiers() {
                 result.set(name, { 
                     layers,
                     count,
+                    special: custom.special
                 });
                 total += count;
             }
@@ -233,21 +238,53 @@ async function loadTiers() {
             }
         }
 
-        result.set(custom.name, { layers, count: custom.count });
+        result.set(custom.name, { layers, count: custom.count, special: custom.special });
     }
     return result;
 } 
 
-async function randomizeTiersAndPerks(tiers: Map<string, Tier>) {
+type Perk = {
+    name: string
+    level: string
+    layer: string
+    path: string
+}
+function randomizeTiersAndPerks(tiers: Map<string, Tier>) {
     let remaining = config.count;
-    let result: string[] = [];
+    let result: { tier: string, perks: Perk[] }[] = [];
+    let specials: { tier: string, perks: Perk[] }[] = [];
     for (let [name, tier] of tiers) {
         for (let i = 0; i < tier.count; i++) {
             remaining--;
-            result.push(name);
+            if (tier.special) {
+                specials.push({ tier: name, perks: [] });
+            } else {
+                result.push({ tier: name, perks: [] });
+            }
         }
     }
-    for (; remaining > 0; remaining--) result.push('Common');
+    for (; remaining > 0; remaining--) result.push({ tier: 'Common', perks: [] });
+
+    shuffle(result);
+    shuffle(specials);
+
+    if (config.perks) {
+        for (let [name, perk] of Object.entries(config.perks)) {
+            let slots: Perk[] = [];
+            for (let l of perk.levels) {
+                for (let i = 0; i < l.count; i++) slots.push({ level: l.name, name, layer: perk.layer, path: perk.path });
+            }
+            shuffle(slots);
+
+            for (let i = 0; i < perk.distribution.special; i++) {
+                specials[i].perks.push(slots.pop()!);
+            }
+            for (let i = 0; i < perk.distribution.others; i++) {
+                result[i].perks.push(slots.pop()!);
+            }
+        }
+    }
+    result = result.concat(specials);
 
     shuffle(result);
     return result;
@@ -266,7 +303,7 @@ async function main() {
     let spinner = ora();
     spinner.start('Loading traits');
 
-    const constraintsMap = await loadConstraints(config.layers);
+    loadConstraints(config.layers);
     const commonLayers = await Promise.all(config.layers.map(async layer => ({ traits: (await loadTraits(layer)).weightedTraits, layer })));
     const tiers = await loadTiers();
     const traitAliases = await loadTraitAliases();
@@ -276,14 +313,12 @@ async function main() {
     let used = new Set<string>();
     let nfts: string[][] = [];
     let nftAttributes: { [key: string]: string }[] = [];
-    for (let tier of await randomizeTiersAndPerks(tiers)) {
+    for (let { tier, perks } of randomizeTiersAndPerks(tiers)) {
         let layers = commonLayers;
         if (tier !== 'Common') {
             layers = tiers.get(tier)!.layers;
         }
-        if (!config.custom.find(a => a.name === tier) && tier !== 'Common') {
-            tier = 'Legendary';
-        }
+
 
         let combination: string[] = [];
         let attributes: { [key: string]: string };
@@ -294,6 +329,18 @@ async function main() {
             attributes['Tier'] = tier;
             let constraints: string[] = [];
             for (let layer of layers) {
+                let isPerk = false;
+                for (let perk of perks) {
+                    if (layer.layer.path.endsWith(perk.layer)) {
+                        attributes[perk.name] = perk.level;
+                        attributes[layer.layer.name] = perk.name.toLowerCase();
+                        combination.push(perk.path);
+                        isPerk = true;
+                    }
+                }
+                if (isPerk) {
+                    continue;
+                }
                 if (constraints.includes(layer.layer.path)) {
                     combination.push('empty');
                     if (!attributes[layer.layer.name]) {
@@ -303,6 +350,12 @@ async function main() {
                 }
                 let selected: Trait;
                 while (true) {
+                    if (tier === 'Miner' && layer.layer.path.endsWith('9-hand')) {
+                        let backIdx = layers.findIndex(a => a.layer.path.endsWith('3-body_back'));
+                        let selectedBack = combination[backIdx];
+                        selected = layer.traits.find(a => a.type === 'image' && a.name === 'hand_' + selectedBack.split('/').pop())!;
+                        break;
+                    }
                     selected = random.nextArrayItem(layer.traits);
                     if (selected.type === 'image' && constraints.includes(layer.layer.path + '/' + selected.name)) {
                         continue;
@@ -359,7 +412,7 @@ async function main() {
             await ImageDataURI.outputFile(image, pathUtils.resolve(config.output, idx + '.png'));
 
             await writeFile(pathUtils.resolve(config.output, idx + '.json'), JSON.stringify(attributes));
-            await appendFile(pathUtils.resolve(config.output, 'attributes.json'), JSON.stringify(attributes) + '\n');
+            await appendFile(pathUtils.resolve(config.output, 'attributes.jsonl'), JSON.stringify(attributes) + '\n');
         
             await appendFile(previewPath, `<img alt="${nft.join(' ')}" src="${idx + '.png'}"></img>`)
             spinner.prefixText = `${idx.toString()}/${total}`;

@@ -7,11 +7,18 @@ name_aliases: trait_names.csv
 
 perks:
   Staking:
-    path: tiers/Usual/Staking/8-tale/staking.png
+    path: tiers/Usual/Staking/8-tale/staking
     layer: 8-tale
+    levels:
+      - name: 50%
+        count: 3
+      - name: 30%
+        count: 10
+      - name: 15%
+        count: 25
     distribution:
-      Legendary: 22
-      others: 22
+      special: 19
+      others: 19
 
 custom:
   - name: Black People
@@ -24,6 +31,7 @@ custom:
     path: tiers/Usual/Miner
     uses:
       - 1-background
+      - 4-eye
   - name: Women
     count: 900
     path: tiers/Usual/Women
@@ -59,16 +67,7 @@ custom:
       Paradise:
         10-hats: 1
       Miner:
-        9-hand:
-          only_with:
-            hand_body_back_1: 3-body_back/body_back_1
-            hand_body_back_2: 3-body_back/body_back_2
-            hand_body_back_3: 3-body_back/body_back_3
-            hand_body_back_5: 3-body_back/body_back_5
-            hand_body_back_6: 3-body_back/body_back_6
-            hand_body_back_7: 3-body_back/body_back_7
-            hand_body_back_8: 3-body_back/body_back_8
-            hand_body_back_9: 3-body_back/body_back_9
+        9-hand: 1
       
     # counts:
     #   90s: 54
@@ -161,6 +160,11 @@ layers:
     name: Tale
     overrides:
       '14': 0.7
+
+  - path: 8.5-clothes
+    rarity: 1
+    name: Clothes
+  
   - path: 9-hand
     name: Hand
     rarity: 0.1
