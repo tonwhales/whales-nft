@@ -3,6 +3,16 @@ output: output/images/
 seed: whales gonna whale
 count: 10000
 logo: logo.png
+name_aliases: trait_names.csv
+
+perks:
+  Staking:
+    path: tiers/Usual/Staking/8-tale/staking.png
+    layer: 8-tale
+    distribution:
+      Legendary: 22
+      others: 22
+
 custom:
   - name: Black People
     count: 500
@@ -48,6 +58,17 @@ custom:
         10-hats: 1
       Paradise:
         10-hats: 1
+      Miner:
+        9-hand:
+          only_with:
+            hand_body_back_1: 3-body_back/body_back_1
+            hand_body_back_2: 3-body_back/body_back_2
+            hand_body_back_3: 3-body_back/body_back_3
+            hand_body_back_5: 3-body_back/body_back_5
+            hand_body_back_6: 3-body_back/body_back_6
+            hand_body_back_7: 3-body_back/body_back_7
+            hand_body_back_8: 3-body_back/body_back_8
+            hand_body_back_9: 3-body_back/body_back_9
       
     # counts:
     #   90s: 54
@@ -94,6 +115,9 @@ layers:
   - path: 3.5-clothes
     name: Clothes
     rarity: 1
+  - path: 3.7-tooth
+    name: Tooth
+    rarity: 0.6
   - path: 4-eye
     rarity: 1
     name: Eye

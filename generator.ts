@@ -3,7 +3,7 @@ import * as pathUtils from 'path'
 import { parse } from 'yaml'
 import Prando from 'prando'
 import mergeImages from 'merge-images'
-import { appendFile, writeFile, readdir, mkdir, copyFile } from 'fs/promises'
+import { appendFile, writeFile, readdir, mkdir, copyFile, readFile } from 'fs/promises'
 import canvas from 'canvas'
 import ora from 'ora'
 
@@ -19,10 +19,12 @@ type LayerConfig = {
     cannot_be_with?: string[]
 }
 
+type Overrides = { [key: string]: number | Optional<LayerConfig> }
+
 type Layer = {
     path: string,
     name: string,
-    overrides?: { [key: string]: number | Optional<LayerConfig> },
+    overrides?: Overrides,
 } & LayerConfig
 
 
@@ -42,6 +44,7 @@ type Config = {
     count: number,
     layers: Layer[]
     logo?: string
+    name_aliases?: string
     custom: CustomConfig[]
 }
 
@@ -63,15 +66,15 @@ function shuffle<T>(array: T[]) {
     }
 }
 
+const Constraints = new Map<string, string[]>();
+
+function addConstraint(name: string, cannotBeWith: string) {
+    let prevConstraints = Constraints.get(name) || [];
+    prevConstraints.push(cannotBeWith);
+    Constraints.set(name, prevConstraints);
+}
+
 async function loadConstraints(layers: Layer[]) {
-    let constraints = new Map<string, string[]>();
-
-    let addConstraint = (name: string, cannotBeWith: string) => {
-        let prevConstraints = constraints.get(name) || [];
-        prevConstraints.push(cannotBeWith);
-        constraints.set(name, prevConstraints);
-    }
-
     for (let layer of layers) {
         if (layer.cannot_be_with) {
             for (let unsuitable of layer.cannot_be_with) {
@@ -90,8 +93,6 @@ async function loadConstraints(layers: Layer[]) {
             }
         }
     }
-
-    return constraints;
 }
 
 
@@ -105,7 +106,13 @@ type Trait = ImageTrait | EmptyTrait;
 
 async function loadTraits(layer: Layer) {
     const traitsDir = pathUtils.resolve(config.root, layer.path);
-    let traitsFiles = await readdir(traitsDir);
+    let traitsFiles: string[] = [];
+    try {
+        traitsFiles = await readdir(traitsDir);
+    } catch {
+        console.warn('[warn] cannot find traits for ' + traitsDir);
+    }
+    
 
     let baseTraits: ImageTrait[] = [];
     for (let file of traitsFiles) {
@@ -231,7 +238,7 @@ async function loadTiers() {
     return result;
 } 
 
-async function randomizeTiers(tiers: Map<string, Tier>) {
+async function randomizeTiersAndPerks(tiers: Map<string, Tier>) {
     let remaining = config.count;
     let result: string[] = [];
     for (let [name, tier] of tiers) {
@@ -246,6 +253,15 @@ async function randomizeTiers(tiers: Map<string, Tier>) {
     return result;
 }
 
+async function loadTraitAliases() {
+    let result = new Map<string, string>();
+    if (!config.name_aliases) {
+        return result;
+    }
+    let data = await readFile(pathUtils.resolve(config.root, config.name_aliases), { encoding: 'utf-8' });
+    return new Map<string, string>(data.split('\n').map<[string, string]>(a => a.split(',') as [string, string]));
+}
+
 async function main() {
     let spinner = ora();
     spinner.start('Loading traits');
@@ -253,13 +269,14 @@ async function main() {
     const constraintsMap = await loadConstraints(config.layers);
     const commonLayers = await Promise.all(config.layers.map(async layer => ({ traits: (await loadTraits(layer)).weightedTraits, layer })));
     const tiers = await loadTiers();
+    const traitAliases = await loadTraitAliases();
 
     spinner.text = 'Building nfts';
 
     let used = new Set<string>();
     let nfts: string[][] = [];
     let nftAttributes: { [key: string]: string }[] = [];
-    for (let tier of await randomizeTiers(tiers)) {
+    for (let tier of await randomizeTiersAndPerks(tiers)) {
         let layers = commonLayers;
         if (tier !== 'Common') {
             layers = tiers.get(tier)!.layers;
@@ -279,7 +296,9 @@ async function main() {
             for (let layer of layers) {
                 if (constraints.includes(layer.layer.path)) {
                     combination.push('empty');
-                    attributes[layer.layer.name] = 'none';
+                    if (!attributes[layer.layer.name]) {
+                        attributes[layer.layer.name] = 'none';
+                    }
                     continue;
                 }
                 let selected: Trait;
@@ -291,9 +310,16 @@ async function main() {
                     break;
                 }
                 combination.push(selected.type === 'image' ? (layer.layer.path + '/' + selected.name) : 'empty');
-                attributes[layer.layer.name] = selected.type === 'image' ? selected.name : 'none';
+                if (!attributes[layer.layer.name]) {
+                    if (selected.type === 'image') {
+                        attributes[layer.layer.name] = traitAliases.get(layer.layer.path + '/' + selected.name + '.png') || selected.name
+                    } else {
+                        attributes[layer.layer.name] = 'none';
+                    }
+                    
+                }
                 if (selected.type == 'image') {
-                    constraints.push(...(constraintsMap.get(layer.layer.path) || []))
+                    constraints.push(...(Constraints.get(layer.layer.path) || []))
                 }
             }
             attempts++;
