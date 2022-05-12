@@ -322,18 +322,21 @@ async function main() {
 
         let combination: string[] = [];
         let attributes: { [key: string]: string };
+        let setAttribute = (name: string, value: string) => {
+            attributes[name] = value.toLowerCase();
+        }
         let attempts = 0;
         do {
             combination = [];
             attributes = {};
-            attributes['Tier'] = tier.toLowerCase();
+            setAttribute('Tier', tier !== 'common' ? tiers.get(tier)!.special ? 'legendary' : 'common' : 'common');
             let constraints: string[] = [];
             for (let layer of layers) {
                 let isPerk = false;
                 for (let perk of perks) {
                     if (layer.layer.path.endsWith(perk.layer)) {
-                        attributes[perk.name] = perk.level;
-                        attributes[layer.layer.name] = perk.name.toLowerCase();
+                        setAttribute(perk.name, perk.level);
+                        setAttribute(layer.layer.name, perk.name);
                         combination.push(perk.path);
                         isPerk = true;
                     }
@@ -343,9 +346,6 @@ async function main() {
                 }
                 if (constraints.includes(layer.layer.path)) {
                     combination.push('empty');
-                    if (!attributes[layer.layer.name]) {
-                        attributes[layer.layer.name] = 'none';
-                    }
                     continue;
                 }
                 let selected: Trait;
@@ -363,13 +363,8 @@ async function main() {
                     break;
                 }
                 combination.push(selected.type === 'image' ? (layer.layer.path + '/' + selected.name) : 'empty');
-                if (!attributes[layer.layer.name]) {
-                    if (selected.type === 'image') {
-                        attributes[layer.layer.name] = traitAliases.get(layer.layer.path + '/' + selected.name + '.png') || selected.name
-                    } else {
-                        attributes[layer.layer.name] = 'none';
-                    }
-                    
+                if (!attributes[layer.layer.name] && selected.type === 'image') {
+                    setAttribute(layer.layer.name, traitAliases.get(layer.layer.path + '/' + selected.name + '.png') || selected.name);
                 }
                 if (selected.type == 'image') {
                     constraints.push(...(Constraints.get(layer.layer.path) || []))
@@ -405,7 +400,7 @@ async function main() {
     spinner.succeed('Calculated rarity scores');
 
     spinner.start('Doing some magic');
-    let total = 1000;
+    let total = config.count;
     await mkdir(config.output, { recursive: true });
     const previewPath = pathUtils.resolve(config.output, 'preview.html');
     await writeFile(previewPath, '<head><style>img { width: 80px; height: 80px; margin: 8px }</style></head>');

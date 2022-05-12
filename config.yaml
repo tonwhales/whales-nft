@@ -5,6 +5,11 @@ count: 10000
 logo: logo.png
 name_aliases: trait_names.csv
 
+meta:
+  name: Whales Club
+  description: Whales Club is a limited collection of 10,000 NFTs, each of which serves as a VIP pass to the most advanced cryptocommunity in the TON ecosystem
+  item_pattern: 'Whale #{{idx}}'
+
 perks:
   Staking:
     path: tiers/Usual/Staking/8-tale/staking
