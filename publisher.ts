@@ -98,7 +98,7 @@ async function main() {
         const attributes = JSON.parse(await readFile(path.resolve('output', 'images', i + '.json'), { encoding: 'utf-8' }));
         await writeFile(path.resolve('output', 'meta', i + '.json'), JSON.stringify({
             name: config.meta.item_pattern.replace("{{idx}}", i.toString()),
-            image: path.join(IPFS_GATEWAY, rootCid.toString(), i + '.png'),
+            image: `${IPFS_GATEWAY}/${rootCid.toString()}/${i}.png`,
             attributes: Object.entries(attributes).map(([type, value]) => ({ trait_type: type, value }))
         }));
     }
@@ -107,7 +107,7 @@ async function main() {
         name: config.meta.name,
         description: config.meta.description,
         external_link: 'https://tonwhales.com/club',
-        image: path.join(IPFS_GATEWAY, rootCid.toString(), 'logo.png'),
+        image: `${IPFS_GATEWAY}/${rootCid.toString()}/logo.png`,
     }));
 
     spinner.succeed('Created metadata')
