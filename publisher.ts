@@ -72,24 +72,24 @@ async function main() {
         }
     });
 
-    let rootCid: CID = CID.parse('QmejkWstDnyyzLEguRH3ZeDbZz28PsRiLdWqPdaRKpTJ6R');
+    let rootCid: CID;
     let prevStage: string | undefined = undefined;
-    // rootCid = await uploadFolder(client, './output/images', (stage, count, total) => {
-    //     if (prevStage !== stage) {
-    //         if (stage === 'dag') {
-    //             spinner.start('Building DAG');
-    //         } else {
-    //             spinner.succeed('Built DAG');
-    //             spinner.start('Importing DAG to IPFS')
-    //         }
-    //     }
-    //     if (stage == 'dag') {
-    //         total = 20004;
-    //     }
-    //     spinner.prefixText = `${count}/${total}`;
-    //     prevStage = stage;
-    // })
-    // spinner.succeed('Imported files to IPFS, root CID: ' + rootCid.toString());
+    rootCid = await uploadFolder(client, './output/images', (stage, count, total) => {
+        if (prevStage !== stage) {
+            if (stage === 'dag') {
+                spinner.start('Building DAG');
+            } else {
+                spinner.succeed('Built DAG');
+                spinner.start('Importing DAG to IPFS')
+            }
+        }
+        if (stage == 'dag') {
+            total = 20004;
+        }
+        spinner.prefixText = `${count}/${total}`;
+        prevStage = stage;
+    })
+    spinner.succeed('Imported files to IPFS, root CID: ' + rootCid.toString());
 
     spinner.start('Creating metadata');
 

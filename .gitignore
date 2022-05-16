@@ -3,3 +3,4 @@ output/
 yarn-error.log
 .DS_Store
 .env
+.ipynb_checkpoints

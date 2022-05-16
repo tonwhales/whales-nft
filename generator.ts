@@ -139,7 +139,7 @@ async function loadTraits(layer: Layer) {
 
     let weightedTraits: Trait[] = [];
     for (let trait of baseTraits) {
-        let count = (raritiesMap.get(trait.name) || raritiesMap.get('default')!) * 100;
+        let count = (raritiesMap.get(trait.name) || raritiesMap.get('default')!) * 1000;
         for (let i = 0; i < count; i++) {
             weightedTraits.push(trait);
         }
@@ -153,6 +153,7 @@ async function loadTraits(layer: Layer) {
     if (weightedTraits.length === 0) {
         weightedTraits.push({ type: 'empty' });
     }
+    shuffle(weightedTraits);
     return { weightedTraits, count: traitsFiles.length };
 }
 
@@ -276,11 +277,11 @@ function randomizeTiersAndPerks(tiers: Map<string, Tier>) {
             }
             shuffle(slots);
 
-            for (let i = 0; i < perk.distribution.special; i++) {
-                specials[i].perks.push(slots.pop()!);
-            }
             for (let i = 0; i < perk.distribution.others; i++) {
                 result[i].perks.push(slots.pop()!);
+            }
+            for (let i = 0; i < perk.distribution.special; i++) {
+                specials[i].perks.push(slots.pop()!);
             }
         }
     }
