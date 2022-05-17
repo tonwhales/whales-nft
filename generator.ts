@@ -195,11 +195,10 @@ async function loadTiers() {
             }
             if (total < custom.count) {
                 while (total !== custom.count) {
-                    let name = pathUtils.basename(random.nextArrayItem(specialPaths));
+                    let next = random.nextArrayItem(specialPaths);
+                    let name = pathUtils.basename(next);
                     let tier = result.get(name)!;
-                    if (tier.count < 55) {
-                        continue;
-                    }
+
                     tier.count++;
                     total++;
                 }

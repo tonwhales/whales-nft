@@ -50,7 +50,7 @@ custom:
         name: Hair
         rarity: 1
   - name: Legendary
-    count: 777
+    count: 77
     path: tiers/Legendary
     special: true
     overrides:
@@ -68,6 +68,7 @@ custom:
         9-hand: 1
       Wizard:
         9-hand: 1
+        10-hats: 1
       Matrix:
         10-hats: 1
         7-glasses: 1
