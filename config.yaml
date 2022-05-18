@@ -38,7 +38,7 @@ custom:
       - 1-background
       - 4-eye
   - name: Women
-    count: 900
+    count: 800
     path: tiers/Usual/Women
     uses:
       - 1-background
@@ -50,7 +50,7 @@ custom:
         name: Hair
         rarity: 1
   - name: Legendary
-    count: 77
+    count: 42
     path: tiers/Legendary
     special: true
     overrides:
@@ -77,12 +77,15 @@ custom:
       Hood:
         10-hats: 1
       Paradise:
+        9-hand: 1
         10-hats: 1
       Wall Street:
         9-hand: 1
       Space:
         12-flags: 0.5
       Ninja School:
+        9-hand: 1
+      Hell:
         9-hand: 1
       
     # counts:
