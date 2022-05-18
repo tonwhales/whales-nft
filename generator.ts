@@ -56,11 +56,7 @@ const random = new Prando(config.seed);
 function shuffle<T>(array: T[]) {
     let remaining = array.length - 1;
     while (remaining > 0) {
-        let idx = Math.floor(random.next(0, remaining));
-
-        if (array[remaining] == undefined) {
-            console.log(remaining);
-        }
+        let idx = random.nextInt(0, remaining);
 
         [array[remaining], array[idx]] = [array[idx], array[remaining]];
         remaining--;
@@ -304,7 +300,11 @@ async function main() {
     spinner.start('Loading traits');
 
     loadConstraints(config.layers);
-    const commonLayers = await Promise.all(config.layers.map(async layer => ({ traits: (await loadTraits(layer)).weightedTraits, layer })));
+
+    const commonLayers: { traits: Trait[], layer: Layer }[] = [];
+    for (let layer of config.layers) {
+        commonLayers.push({ traits: (await loadTraits(layer)).weightedTraits, layer });
+    }
     const tiers = await loadTiers();
     const traitAliases = await loadTraitAliases();
 
@@ -376,6 +376,11 @@ async function main() {
                 throw new Error('Cannot build unique combination');
             }            
         } while (used.has(combination.join('/')));
+
+        if (tier === 'Paradise') {
+            console.log(nfts.length, combination);
+        }
+
         used.add(combination.join('/'));
         nfts.push(combination);
         nftAttributes.push(attributes);
