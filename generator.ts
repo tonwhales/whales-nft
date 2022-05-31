@@ -311,6 +311,9 @@ async function main() {
     spinner.text = 'Building nfts';
 
     let used = new Set<string>();
+    let uniqueAttrs = new Map<string, Set<string>>();
+    uniqueAttrs.set('China Town/Clothes', new Set<string>());
+
     let nfts: string[][] = [];
     let nftAttributes: { [key: string]: string }[] = [];
     for (let { tier, perks } of randomizeTiersAndPerks(tiers)) {
@@ -330,6 +333,7 @@ async function main() {
             combination = [];
             attributes = {};
             setAttribute('Tier', tier !== 'common' ? tiers.get(tier)!.special ? 'legendary' : 'common' : 'common');
+            setAttribute('Sex', tier !== 'Women' ? 'male' : 'female');
             let constraints: string[] = [];
             for (let layer of layers) {
                 let isPerk = false;
@@ -349,6 +353,7 @@ async function main() {
                     continue;
                 }
                 let selected: Trait;
+                let uniquiness = uniqueAttrs.get(`${tier}/${layer.layer.name}`);
                 while (true) {
                     if (tier === 'Miner' && layer.layer.path.endsWith('9-hand')) {
                         let backIdx = layers.findIndex(a => a.layer.path.endsWith('3-body_back'));
@@ -357,10 +362,18 @@ async function main() {
                         break;
                     }
                     selected = random.nextArrayItem(layer.traits);
-                    if (selected.type === 'image' && constraints.includes(layer.layer.path + '/' + selected.name)) {
-                        continue;
+                    if (selected.type === 'image') {
+                        if (constraints.includes(layer.layer.path + '/' + selected.name)) {
+                            continue;
+                        }
+                        if (uniquiness?.has(selected.name)) {
+                            continue;
+                        }
                     }
                     break;
+                }
+                if (selected.type === 'image') {
+                    uniquiness?.add(selected.name);
                 }
                 combination.push(selected.type === 'image' ? (layer.layer.path + '/' + selected.name) : 'empty');
                 if (!attributes[layer.layer.name] && selected.type === 'image') {
@@ -376,10 +389,6 @@ async function main() {
                 throw new Error('Cannot build unique combination');
             }            
         } while (used.has(combination.join('/')));
-
-        if (tier === 'Paradise') {
-            console.log(nfts.length, combination);
-        }
 
         used.add(combination.join('/'));
         nfts.push(combination);

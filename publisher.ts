@@ -54,7 +54,23 @@ async function uploadFolder(client: IPFSHTTPClient, source: string, progress: (s
     let total = Object.keys(blockstore.data).length;
     count = 0;
     for await (let batch of batches(blockstore.query({}), 100)) {
-        await Promise.all(batch.map(a => client.block.put(a.value)));
+        await Promise.all(batch.map(async a => {
+            let retries = 0;
+            while (true) {
+                try {
+                    await client.block.put(a.value);
+                    break;
+                } catch(e) {
+                    retries++;
+                    if (retries === 3) {
+                        console.log('retried block 3 times idk');
+                    }
+                    if (retries === 20) {
+                        throw e;
+                    }
+                }
+            }
+        }));
         count += batch.length;
 
         progress('import', count, total);
