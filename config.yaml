@@ -11,15 +11,15 @@ meta:
   item_pattern: 'Whale #{{idx}}'
 
 perks:
-  Staking:
-    path: tiers/Usual/Staking/8-tale/staking
+  Ton Cashback:
+    path: tiers/Usual/Staking/8-tale/ton cashback
     layer: 8-tale
     levels:
-      - name: 50%
+      - name: gold
         count: 3
-      - name: 30%
+      - name: silver
         count: 10
-      - name: 15%
+      - name: bronze
         count: 25
     distribution:
       special: 19
