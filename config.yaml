@@ -58,6 +58,7 @@ custom:
         7-glasses: 1
       Wild West:
         5-neck: 1
+        9-hand: 1
         10-hats: 1
       UAE Desert:
         10-hats: 1
@@ -135,7 +136,7 @@ layers:
     name: Clothes
     rarity: 1
   - path: 3.7-tooth
-    name: Tooth
+    name: Teeth
     rarity: 0.6
   - path: 4-eye
     rarity: 1
