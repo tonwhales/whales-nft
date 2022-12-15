@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "generate": "node --loader ts-node/esm ./generator.ts",
-    "upload": "node --loader ts-node/esm ./publisher.ts"
+    "upload": "node --loader ts-node/esm ./publisher.ts",
+    "upload-misc": "node --loader ts-node/esm ./publisher-misc.ts"
   },
   "dependencies": {
     "@ipld/car": "^4.1.2",

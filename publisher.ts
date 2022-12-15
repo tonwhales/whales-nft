@@ -12,7 +12,7 @@ dotenv.config();
 
 const config: { meta: { name: string, description: string, item_pattern: string } } = parse(readFileSync('./config.yaml', { encoding: 'utf-8' }))
 
-const IPFS_GATEWAY = 'https://whales.infura-ipfs.io/ipfs';
+const IPFS_GATEWAY = 'ipfs:/';
 
 async function * mapAsync<T, V>(iterable: AsyncIterable<T>, fn: (a: T) => V) {
     for await (let e of iterable) {

@@ -2,13 +2,19 @@ root: traits/
 output: output/images/
 seed: whales gonna whale
 count: 10000
-logo: logo.png
+logo: logo.gif
+cover: winter-cover.png
 name_aliases: trait_names.csv
 
 meta:
   name: Whales Club
-  description: Whales Club is a limited collection of 10,000 NFTs, each of which serves as a VIP pass to the most advanced cryptocommunity in the TON ecosystem
+  description: Collection limited to 10000 utility-enabled NFTs, where the token is your membership to the Whales Club. Join the club and participate in weekly Ambra token giveaways, have access to the most profitable Ton Whales decentralized staking pools and many other useful club privileges.
   item_pattern: 'Whale #{{idx}}'
+  external_url: https://tonwhales.com/club
+  social_links:
+    - https://t.me/tonwhalesnft
+    - https://t.me/tonwhalesnften
+    - https://twitter.com/whalescorp
 
 perks:
   Ton Cashback:
