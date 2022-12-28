@@ -3,7 +3,7 @@ output: output/images/
 seed: whales gonna whale
 count: 10000
 logo: logo.gif
-cover: winter-cover.png
+cover: cover.gif
 name_aliases: trait_names.csv
 
 meta:
