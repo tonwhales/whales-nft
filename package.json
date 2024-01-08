@@ -29,5 +29,6 @@
   },
   "devDependencies": {
     "@types/merge-images": "^1.2.1"
-  }
+  },
+  "packageManager": "yarn@1.22.19"
 }

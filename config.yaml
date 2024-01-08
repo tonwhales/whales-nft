@@ -8,7 +8,7 @@ name_aliases: trait_names.csv
 
 meta:
   name: Whales Club
-  description: Collection limited to 10000 utility-enabled NFTs, where the token is your membership to the Whales Club. Join the club and participate in weekly Ambra token giveaways, have access to the most profitable Ton Whales decentralized staking pools and many other useful club privileges.
+  description: Collection limited to 10000 utility-enabled NFTs, where the token is your membership to the Whales Club. Have access to the most profitable Ton Whales decentralized staking pools, networking system, the latest news from Whales Corp. and many other useful club privileges.
   item_pattern: 'Whale #{{idx}}'
   external_url: https://tonwhales.com/club
   social_links:
