@@ -441,7 +441,8 @@ async function main() {
         
             await appendFile(previewPath, `<img alt="${nft.join(' ')}" src="${idx + '.png'}"></img>`)
             spinner.prefixText = `${idx.toString()}/${total}`;
-        } catch {
+        } catch (e) {
+            console.warn(e);
             console.log(images);
         }
     }
